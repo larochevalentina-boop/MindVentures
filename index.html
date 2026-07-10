@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>MindVentures — Clases y Pagos</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,sans-serif;background:#f5f4f0;color:#1a1a18;min-height:100vh;padding:1.5rem;}
+button,input,select,textarea{font-family:inherit;font-size:13px;}
+button{cursor:pointer;}
+.btn{padding:5px 12px;border-radius:8px;border:0.5px solid #888;background:#fff;color:#1a1a18;}
+.btn:hover{background:#f0efe8;}
+.btn-sm{padding:3px 9px;font-size:12px;border-radius:7px;border:0.5px solid #888;background:#fff;color:#1a1a18;}
+.btn-accent{border-color:#185fa5!important;background:#e6f1fb!important;color:#185fa5!important;}
+.btn-danger{border-color:#a32d2d!important;background:#fcebeb!important;color:#a32d2d!important;}
+.btn-purple{border-color:#7B6FE8!important;background:#C9C4F7!important;color:#2B1FA8!important;}
+.btn-teal{border-color:#2a9d8f!important;background:#e6f7f5!important;color:#1a6b60!important;}
+input,select,textarea{padding:6px 10px;border-radius:8px;border:0.5px solid #888;background:#fff;color:#1a1a18;width:100%;}
+textarea{resize:vertical;min-height:60px;}
+.card{background:#fff;border:0.5px solid #d3d1c7;border-radius:12px;overflow:hidden;margin-bottom:8px;}
+.card-header{display:flex;justify-content:space-between;align-items:center;padding:9px 14px;}
+.card-body{border-top:0.5px solid #d3d1c7;padding:12px 14px;}
+.sub-card{border:0.5px solid #e8e8e0;border-radius:8px;margin-bottom:8px;overflow:hidden;}
+.sub-card-header{display:flex;justify-content:space-between;align-items:center;padding:7px 12px;background:#f9f8f4;cursor:pointer;}
+.sub-card-body{padding:10px 12px;border-top:0.5px solid #e8e8e0;}
+.tabs{display:flex;gap:6px;margin-bottom:16px;flex-wrap:wrap;}
+.tab{padding:5px 14px;border-radius:8px;border:0.5px solid #888;background:#fff;color:#1a1a18;cursor:pointer;}
+.tab.active{border:2px solid #185fa5;background:#e6f1fb;color:#185fa5;font-weight:500;}
+.legend{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+.chip{font-size:11px;padding:2px 9px;border-radius:99px;}
+.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px;}
+.metric{border-radius:8px;padding:7px 10px;}
+.form-box{background:#f5f4f0;border:0.5px solid #d3d1c7;border-radius:12px;padding:1rem;margin-bottom:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.form-box .full{grid-column:1/-1;}
+.form-actions{display:flex;gap:8px;grid-column:1/-1;}
+.cal-wrap{overflow-x:auto;}
+table{border-collapse:collapse;font-size:10px;}
+th{padding:4px 3px;text-align:center;font-weight:400;color:#5f5e5a;border-bottom:0.5px solid #999;white-space:nowrap;}
+th.sticky{text-align:left;padding-left:7px;position:sticky;left:0;background:#f5f4f0;min-width:110px;}
+td.sticky{padding:3px 7px;font-size:11px;color:#5f5e5a;white-space:nowrap;position:sticky;left:0;background:#f5f4f0;vertical-align:middle;}
+td.cell{text-align:center;padding:2px;}
+tr{border-bottom:0.5px solid #e0dfd8;}
+tr:hover td{background:#eef5ff;}
+tr:hover td.sticky{background:#ddeeff;font-weight:600;color:#1a1a18;}
+.cell-box{width:52px;height:22px;margin:0 auto;border-radius:4px;cursor:pointer;border:0.5px solid #ccc;position:relative;display:flex;align-items:center;justify-content:center;}
+.note-dot{position:absolute;top:2px;right:3px;font-size:8px;line-height:1;}
+.summary-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:16px;}
+.summary-card{background:#fff;border:0.5px solid #d3d1c7;border-radius:10px;padding:12px 14px;}
+.profe-row{display:flex;justify-content:space-between;align-items:center;background:#fff;border:0.5px solid #d3d1c7;border-radius:8px;padding:9px 14px;margin-bottom:6px;}
+.tip{font-size:11px;color:#aaa;margin-top:8px;}
+.badge{font-size:10px;padding:2px 7px;border-radius:99px;margin-left:5px;}
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;z-index:100;}
+.modal{background:#fff;border-radius:16px;padding:1.25rem;width:320px;max-width:93vw;max-height:85vh;overflow-y:auto;}
+.mini-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;margin-bottom:10px;}
+.mini-day-hdr{font-size:10px;color:#888;text-align:center;padding:2px 0;}
+.mini-day{font-size:11px;text-align:center;padding:5px 2px;border-radius:6px;cursor:pointer;border:0.5px solid transparent;}
+.mini-day:hover{background:#f0efe8;}
+.mini-day.sel{background:#C9C4F7;border-color:#7B6FE8;color:#2B1FA8;font-weight:500;}
+.mini-day.disabled{color:#ccc;cursor:default;}
+.header-bar{display:flex;align-items:center;gap:14px;margin-bottom:16px;border-bottom:1.5px solid #e0dfd8;padding-bottom:14px;flex-wrap:wrap;}
+.row-actions{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.edit-box{border-top:0.5px solid #e8e8e0;padding:10px 14px;background:#f9f8f4;}
+.sync-indicator{font-size:11px;color:#888;margin-left:8px;}
+</style>
+</head>
+<body>
+<div id="root"><div style="display:flex;align-items:center;justify-content:center;height:100vh;font-size:14px;color:#888">Cargando datos...</div></div>
+<script>
+// ── Supabase ──
+const SUPA_URL="https://etaawwlebztodkcbjaos.supabase.co";
+const SUPA_KEY="sb_publishable_siIZt7zGPMCt06VPrVj0BA_cLWZO7wV";
+const ROW_ID=1;
+
+async function loadFromCloud(){
+  try{
+    const r=await fetch(SUPA_URL+"/rest/v1/mv_data?id=eq."+ROW_ID+"&select=data",{
+      headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+    });
+    const rows=await r.json();
+    if(rows&&rows.length>0&&rows[0].data){
+      const d=JSON.parse(rows[0].data);
+      if(d.profes)S.profes=d.profes;
+      if(d.students)S.students=d.students;
+      if(d.sesiones)S.sesiones=d.sesiones;
+      if(d.notas)S.notas=d.notas;
+    }
+  }catch(e){console.error("Error cargando:",e);}
+}
+
+async function saveToCloud(){
+  const data=JSON.stringify({profes:S.profes,students:S.students,sesiones:S.sesiones,notas:S.notas});
+  try{
+    const check=await fetch(SUPA_URL+"/rest/v1/mv_data?id=eq."+ROW_ID+"&select=id",{
+      headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY}
+    });
+    const rows=await check.json();
+    if(rows&&rows.length>0){
+      await fetch(SUPA_URL+"/rest/v1/mv_data?id=eq."+ROW_ID,{
+        method:"PATCH",
+        headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({data})
+      });
+    } else {
+      await fetch(SUPA_URL+"/rest/v1/mv_data",{
+        method:"POST",
+        headers:{"apikey":SUPA_KEY,"Authorization":"Bearer "+SUPA_KEY,"Content-Type":"application/json"},
+        body:JSON.stringify({id:ROW_ID,data})
+      });
+    }
+  }catch(e){console.error("Error guardando:",e);}
+}
+
+// ── Colores ──
+window.hCol=function(i,on){
+  var els=document.querySelectorAll('.c'+i);
+  for(var k=0;k<els.length;k++) els[k].style.backgroundColor=on?'#ddeeff':'';
+};
+
+const COLORS={
+  anticipado:{bg:"#C9C4F7",border:"#7B6FE8",text:"#2B1FA8",label:"Pago anticipado"},
+  dictada:   {bg:"#F9AAAA",border:"#E03030",text:"#6B0000",label:"Sesión dictada"},
+  pagadaPapas:{bg:"#FCCF7A",border:"#D4820A",text:"#5C3100",label:"Pagada (papás)"},
+  pagadaProfe:{bg:"#A8E07A",border:"#4FAD1A",text:"#1B4D00",label:"Pagada (profe)"},
+};
+const CICLO=["","anticipado","dictada","pagadaPapas","pagadaProfe"];
+const MESES=["Enero","Febrero","Marzo","Abril","Mayo","Junio","Julio","Agosto","Septiembre","Octubre","Noviembre","Diciembre"];
+const DIAS=["Dom","Lun","Mar","Mié","Jue","Vie","Sáb"];
+const TARIFA_STD={individual:100000,semi:180000};
+const TARIFA_PAQ4={individual:95000,semi:170000};
+const TARIFA_PAQ6={individual:90000,semi:162000};
+const fmt=n=>"$"+Math.round(n).toLocaleString("es-CO");
+
+const INIT_STUDENTS=[
+  {id:1,nombre:"Lucas Dangond",profesora:"Lina López",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:2,nombre:"Lucas Dangond",profesora:"Valentina La Roche",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:3,nombre:"Lucas Dangond",profesora:"Carolina Morales",materia:"Fonoaudiología",tipo:"individual",tarifa:null},
+  {id:4,nombre:"Paulina Dangond",profesora:"Lina López",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:5,nombre:"Paulina Dangond",profesora:"Valentina La Roche",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:6,nombre:"Paulina Dangond",profesora:"Carolina Tamayo",materia:"Español",tipo:"individual",tarifa:null},
+  {id:7,nombre:"Sebastián Orozco",profesora:"Carolina Morales",materia:"Fonoaudiología",tipo:"individual",tarifa:null},
+  {id:8,nombre:"Sophia y Amalia Quiceno",profesora:"Valentina La Roche",materia:"Inglés",tipo:"semi",tarifa:null},
+  {id:9,nombre:"Salomón Correa",profesora:"Valentina La Roche",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:10,nombre:"Antonia Cadavid",profesora:"Diana Betancur",materia:"Estimulación",tipo:"individual",tarifa:null},
+  {id:11,nombre:"Emilia",profesora:"Maria Paula Gómez",materia:"Estimulación",tipo:"individual",tarifa:150000},
+  {id:12,nombre:"Rafael",profesora:"Valentina La Roche",materia:"Estimulación",tipo:"individual",tarifa:null},
+  {id:13,nombre:"Elena",profesora:"Valentina La Roche",materia:"Estimulación",tipo:"individual",tarifa:null},
+  {id:14,nombre:"Jerónimo",profesora:"Valentina La Roche",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:15,nombre:"Antonia Arango",profesora:"Valentina La Roche",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:16,nombre:"Macarena y Antonela",profesora:"Elizabeth Ozorno",materia:"Estimulación",tipo:"semi",tarifa:null},
+  {id:17,nombre:"Manuel Usme",profesora:"Elizabeth Ozorno",materia:"Lecto-Escritura",tipo:"individual",tarifa:null},
+  {id:18,nombre:"Thiago",profesora:"Elizabeth Ozorno",materia:"Estimulación",tipo:"individual",tarifa:null},
+  {id:19,nombre:"Amelia Arango Molina",profesora:"Valentina La Roche",materia:"Estimulación",tipo:"individual",tarifa:null},
+  {id:20,nombre:"Amalia y Victoria Sanchez",profesora:"Maria Paula Gómez",materia:"Estimulación",tipo:"semi",tarifa:null},
+  {id:21,nombre:"Emilia",profesora:"Maria Paula Gómez",materia:"Estimulación",tipo:"individual",tarifa:150000},
+  {id:22,nombre:"Lucas Dangond",profesora:"Maria Paula Gómez",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:23,nombre:"Paulina Dangond",profesora:"Maria Paula Gómez",materia:"Inglés",tipo:"individual",tarifa:null},
+  {id:1783341821263,nombre:"Aitana",profesora:"Elizabeth Ozorno",materia:"Estimulación",tipo:"individual",tarifa:null},
+  {id:1783355381237,nombre:"Salvador Pina Montoya",profesora:"Carolina Morales",materia:"Fonoaudiología",tipo:"individual",tarifa:null},
+];
+const INIT_PROFES=["Lina López","Valentina La Roche","Carolina Morales","Carolina Tamayo","Elizabeth Ozorno","Maria Paula Gómez","Diana Betancur"];
+
+const INIT_NOTAS={"2_2026-04-30_note":"Remplazo Elizabeth","5_2026-04-30_note":"Remplazo Elizabeth","2_2026-05-20_note":"Dictada por Elizabeth","21_2026-06-22_note":"$150"};
+
+const HIST={"1_2026-02-17":"pagadaProfe","1_2026-02-24":"pagadaProfe","2_2026-02-18":"pagadaProfe","2_2026-02-25":"pagadaProfe","2_2026-02-26":"pagadaProfe","3_2026-02-16":"pagadaProfe","3_2026-02-23":"pagadaProfe","4_2026-02-17":"pagadaProfe","4_2026-02-24":"pagadaProfe","5_2026-02-18":"pagadaProfe","5_2026-02-25":"pagadaProfe","5_2026-02-26":"pagadaProfe","5_2026-02-27":"pagadaProfe","6_2026-02-16":"pagadaProfe","6_2026-02-23":"pagadaProfe","7_2026-02-11":"pagadaProfe","7_2026-02-18":"pagadaProfe","8_2026-02-06":"pagadaProfe","8_2026-02-13":"pagadaProfe","8_2026-02-27":"pagadaProfe","11_2026-02-17":"pagadaProfe","11_2026-02-18":"pagadaProfe","11_2026-02-19":"pagadaProfe","11_2026-02-20":"pagadaProfe","11_2026-02-23":"pagadaProfe","11_2026-02-26":"pagadaProfe","11_2026-02-27":"pagadaProfe","12_2026-02-19":"pagadaProfe","12_2026-02-26":"pagadaProfe","1_2026-03-03":"pagadaProfe","1_2026-03-10":"pagadaProfe","1_2026-03-17":"pagadaProfe","1_2026-03-24":"pagadaProfe","2_2026-03-05":"pagadaProfe","2_2026-03-07":"pagadaProfe","2_2026-03-12":"pagadaProfe","2_2026-03-19":"pagadaProfe","2_2026-03-21":"pagadaProfe","2_2026-03-26":"pagadaProfe","2_2026-03-27":"pagadaProfe","3_2026-03-03":"pagadaProfe","3_2026-03-09":"pagadaProfe","3_2026-03-17":"pagadaProfe","4_2026-03-03":"pagadaProfe","4_2026-03-10":"pagadaProfe","4_2026-03-17":"pagadaProfe","4_2026-03-24":"pagadaProfe","5_2026-03-05":"pagadaProfe","5_2026-03-07":"pagadaProfe","5_2026-03-12":"pagadaProfe","5_2026-03-19":"pagadaProfe","5_2026-03-21":"pagadaProfe","5_2026-03-26":"pagadaProfe","5_2026-03-27":"pagadaProfe","6_2026-03-02":"pagadaProfe","6_2026-03-09":"pagadaProfe","6_2026-03-16":"pagadaProfe","6_2026-03-20":"pagadaProfe","6_2026-03-25":"pagadaProfe","6_2026-03-31":"pagadaProfe","7_2026-03-11":"pagadaProfe","7_2026-03-18":"pagadaProfe","8_2026-03-06":"pagadaProfe","8_2026-03-13":"pagadaProfe","9_2026-03-04":"pagadaProfe","9_2026-03-11":"pagadaProfe","10_2026-03-03":"pagadaProfe","11_2026-03-02":"pagadaProfe","11_2026-03-03":"pagadaProfe","11_2026-03-04":"pagadaProfe","11_2026-03-05":"pagadaProfe","11_2026-03-06":"pagadaProfe","11_2026-03-10":"pagadaProfe","11_2026-03-11":"pagadaProfe","11_2026-03-12":"pagadaProfe","11_2026-03-13":"pagadaProfe","11_2026-03-16":"pagadaProfe","11_2026-03-17":"pagadaProfe","11_2026-03-18":"pagadaProfe","11_2026-03-19":"pagadaProfe","11_2026-03-20":"pagadaProfe","11_2026-03-24":"pagadaProfe","11_2026-03-25":"pagadaProfe","11_2026-03-26":"pagadaProfe","11_2026-03-27":"pagadaProfe","12_2026-03-05":"pagadaProfe","12_2026-03-12":"pagadaProfe","12_2026-03-19":"pagadaProfe","12_2026-03-26":"pagadaProfe","13_2026-03-05":"pagadaProfe","13_2026-03-12":"pagadaProfe","13_2026-03-19":"pagadaProfe","13_2026-03-26":"pagadaProfe","14_2026-03-05":"pagadaProfe","14_2026-03-12":"pagadaProfe","14_2026-03-19":"pagadaProfe","14_2026-03-26":"pagadaProfe","15_2026-03-11":"pagadaProfe","15_2026-03-18":"pagadaProfe","15_2026-03-25":"pagadaProfe","1_2026-04-07":"pagadaProfe","1_2026-04-14":"pagadaProfe","1_2026-04-21":"pagadaProfe","1_2026-04-28":"pagadaProfe","2_2026-04-11":"pagadaProfe","2_2026-04-16":"pagadaProfe","2_2026-04-23":"pagadaProfe","2_2026-04-25":"pagadaProfe","2_2026-04-30":"pagadaProfe","3_2026-04-07":"pagadaProfe","3_2026-04-09":"pagadaProfe","3_2026-04-14":"pagadaProfe","3_2026-04-15":"pagadaProfe","3_2026-04-23":"pagadaProfe","3_2026-04-28":"pagadaProfe","4_2026-04-07":"pagadaProfe","4_2026-04-14":"pagadaProfe","4_2026-04-21":"pagadaProfe","4_2026-04-28":"pagadaProfe","5_2026-04-11":"pagadaProfe","5_2026-04-16":"pagadaProfe","5_2026-04-23":"pagadaProfe","5_2026-04-25":"pagadaProfe","5_2026-04-30":"pagadaProfe","6_2026-04-06":"pagadaProfe","6_2026-04-13":"pagadaProfe","6_2026-04-20":"pagadaProfe","6_2026-04-27":"pagadaProfe","7_2026-04-15":"pagadaProfe","7_2026-04-22":"pagadaProfe","8_2026-04-17":"pagadaProfe","8_2026-04-24":"pagadaProfe","9_2026-04-22":"pagadaProfe","9_2026-04-29":"pagadaProfe","12_2026-04-10":"pagadaProfe","12_2026-04-16":"pagadaProfe","13_2026-04-16":"pagadaProfe","13_2026-04-23":"pagadaProfe","13_2026-04-30":"pagadaProfe","14_2026-04-16":"pagadaProfe","14_2026-04-23":"pagadaProfe","14_2026-04-30":"pagadaProfe","15_2026-04-24":"pagadaProfe","16_2026-04-17":"pagadaProfe","1_2026-05-05":"pagadaProfe","1_2026-05-12":"pagadaProfe","1_2026-05-19":"pagadaProfe","1_2026-05-26":"pagadaProfe","2_2026-05-07":"pagadaProfe","2_2026-05-09":"pagadaProfe","2_2026-05-14":"pagadaProfe","2_2026-05-16":"pagadaProfe","2_2026-05-20":"pagadaProfe","2_2026-05-21":"pagadaProfe","2_2026-05-28":"pagadaProfe","2_2026-05-30":"pagadaProfe","3_2026-05-05":"pagadaProfe","3_2026-05-07":"pagadaProfe","3_2026-05-11":"pagadaProfe","3_2026-05-25":"pagadaProfe","4_2026-05-05":"pagadaProfe","4_2026-05-12":"pagadaProfe","4_2026-05-19":"pagadaProfe","4_2026-05-26":"pagadaProfe","5_2026-05-07":"pagadaProfe","5_2026-05-09":"pagadaProfe","5_2026-05-14":"pagadaProfe","5_2026-05-16":"pagadaProfe","5_2026-05-28":"pagadaProfe","5_2026-05-29":"pagadaProfe","5_2026-05-30":"pagadaProfe","6_2026-05-04":"pagadaProfe","6_2026-05-05":"pagadaProfe","6_2026-05-11":"pagadaProfe","6_2026-05-12":"pagadaProfe","6_2026-05-19":"pagadaProfe","6_2026-05-20":"pagadaProfe","6_2026-05-25":"pagadaProfe","6_2026-05-26":"pagadaProfe","7_2026-05-06":"pagadaProfe","7_2026-05-13":"pagadaProfe","8_2026-05-08":"pagadaProfe","8_2026-05-15":"pagadaProfe","13_2026-05-07":"pagadaProfe","13_2026-05-14":"pagadaProfe","13_2026-05-28":"pagadaProfe","14_2026-05-07":"pagadaProfe","14_2026-05-14":"pagadaProfe","14_2026-05-28":"pagadaProfe","16_2026-05-08":"pagadaProfe","16_2026-05-15":"pagadaProfe","16_2026-05-22":"pagadaProfe","16_2026-05-29":"pagadaProfe","17_2026-05-05":"pagadaProfe","17_2026-05-12":"pagadaProfe","17_2026-05-19":"pagadaProfe","17_2026-05-26":"pagadaProfe","18_2026-05-13":"pagadaProfe","18_2026-05-14":"pagadaProfe","18_2026-05-15":"pagadaProfe","18_2026-05-19":"pagadaProfe","18_2026-05-20":"pagadaProfe","18_2026-05-21":"pagadaProfe","18_2026-05-22":"pagadaProfe","22_2026-06-03":"pagadaProfe","22_2026-06-10":"pagadaProfe","22_2026-06-22":"pagadaProfe","2_2026-06-04":"pagadaProfe","2_2026-06-11":"pagadaProfe","2_2026-06-24":"pagadaProfe","2_2026-06-25":"pagadaProfe","3_2026-06-01":"pagadaProfe","3_2026-06-03":"pagadaProfe","3_2026-06-10":"pagadaProfe","3_2026-06-18":"pagadaProfe","3_2026-06-22":"pagadaProfe","3_2026-06-23":"pagadaProfe","23_2026-06-03":"pagadaProfe","23_2026-06-10":"pagadaProfe","5_2026-06-04":"pagadaProfe","5_2026-06-11":"pagadaProfe","5_2026-06-24":"pagadaProfe","5_2026-06-25":"pagadaProfe","6_2026-06-01":"pagadaProfe","6_2026-06-02":"pagadaProfe","6_2026-06-09":"pagadaProfe","6_2026-06-10":"pagadaProfe","6_2026-06-16":"pagadaProfe","6_2026-06-17":"pagadaProfe","6_2026-06-22":"pagadaProfe","6_2026-06-23":"pagadaProfe","6_2026-06-24":"pagadaProfe","6_2026-06-25":"pagadaProfe","8_2026-06-05":"pagadaProfe","8_2026-06-12":"pagadaProfe","8_2026-06-19":"pagadaProfe","13_2026-06-04":"pagadaProfe","13_2026-06-11":"pagadaProfe","14_2026-06-04":"pagadaProfe","14_2026-06-11":"pagadaProfe","16_2026-06-05":"pagadaProfe","16_2026-06-26":"pagadaProfe","17_2026-06-02":"pagadaProfe","17_2026-06-09":"pagadaProfe","19_2026-06-22":"dictada","20_2026-06-23":"pagadaProfe","20_2026-06-26":"pagadaProfe","20_2026-07-02":"pagadaProfe","20_2026-07-03":"pagadaProfe","20_2026-07-07":"dictada","20_2026-07-09":"dictada","19_2026-07-02":"dictada","16_2026-07-10":"anticipado","16_2026-07-17":"anticipado","1783341821263_2026-07-06":"pagadaProfe","1783341821263_2026-07-27":"anticipado","1783341821263_2026-08-03":"anticipado","1783341821263_2026-08-10":"anticipado","1783355381237_2026-07-06":"pagadaProfe","7_2026-07-08":"pagadaProfe"};
+
+let S={
+  view:"calendario",year:2026,month:6,
+  openStudent:null,openSub:null,
+  editingId:null,editForm:{},
+  editingProfeIdx:null,editProfeNombre:"",
+  showAddSt:false,showAddPr:false,
+  newSt:{nombre:"",profesora:"",materia:"",tipo:"individual",tarifa:""},
+  newPr:"",modal:null,noteModal:null,
+  profes:[...INIT_PROFES],
+  students:INIT_STUDENTS.map(s=>({...s})),
+  sesiones:{...HIST},
+  notas:{...INIT_NOTAS},
+};
+
+function saveState(){
+  try{localStorage.setItem("mv_v7",JSON.stringify({profes:S.profes,students:S.students,sesiones:S.sesiones,notas:S.notas}));}catch(e){}
+  saveToCloud();
+}
+
+function getTarifa(s){return s.tarifa!=null?s.tarifa:(TARIFA_STD[s.tipo]||100000);}
+function diasDelMes(y,m){const out=[],d=new Date(y,m,1);while(d.getMonth()===m){if(d.getDay()!==0)out.push(new Date(d));d.setDate(d.getDate()+1);}return out;}
+function noteKey(id,ds){return id+"_"+ds+"_note";}
+function getNote(id,ds){return S.notas[noteKey(id,ds)]||"";}
+function stSesiones(s){
+  return Object.entries(S.sesiones).filter(([k])=>k.startsWith(s.id+"_"))
+    .map(([k,est])=>({fecha:k.split("_")[1],estado:est,nota:getNote(s.id,k.split("_")[1])}))
+    .sort((a,b)=>a.fecha.localeCompare(b.fecha));
+}
+function calcFin(s){
+  const ss=stSesiones(s),t=getTarifa(s);
+  return{cobrado:ss.filter(x=>["pagadaPapas","pagadaProfe"].includes(x.estado)).length*t,anticipado:ss.filter(x=>x.estado==="anticipado").length*t,porCobrar:ss.filter(x=>x.estado==="dictada").length*t,porPagar:ss.filter(x=>x.estado==="pagadaPapas").length*t*0.6,nAnticipado:ss.filter(x=>x.estado==="anticipado").length};
+}
+function activeStudents(){
+  const prefix=S.year+"-"+String(S.month+1).padStart(2,"0");
+  return S.students.filter(s=>Object.keys(S.sesiones).some(k=>k.startsWith(s.id+"_")&&k.includes(prefix)));
+}
+function groupedStudents(){
+  const g={};S.students.forEach(s=>{if(!g[s.nombre])g[s.nombre]=[];g[s.nombre].push(s);});return g;
+}
+function render(){document.getElementById("root").innerHTML=buildApp();}
+
+function buildApp(){
+  return`<div class="header-bar">
+    <img src="logo.png" alt="MindVentures" style="height:60px;width:60px;object-fit:contain" onerror="this.style.display='none'"/>
+    <div style="flex:1"><h1 style="font-size:20px;font-weight:700;color:#2a9d8f;margin:0">MindVentures</h1><p style="font-size:12px;color:#888">Control de clases y pagos</p></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn btn-teal btn-sm" onclick="exportData()">⬇ Exportar backup</button>
+      <label class="btn btn-purple btn-sm" style="cursor:pointer">⬆ Importar backup<input type="file" accept=".json" onchange="importData(event)" style="display:none"/></label>
+    </div>
+  </div>
+  <div class="legend">${Object.entries(COLORS).map(([,v])=>`<span class="chip" style="background:${v.bg};color:${v.text};border:0.5px solid ${v.border}">${v.label}</span>`).join("")}</div>
+  <div class="tabs">${[["calendario","Calendario"],["estudiantes","Estudiantes"],["profes","Profesoras"],["resumen","Resumen"]].map(([k,l])=>`<button class="tab${S.view===k?" active":""}" onclick="setView('${k}')">${l}</button>`).join("")}</div>
+  ${S.view==="calendario"?buildCal():S.view==="estudiantes"?buildEst():S.view==="profes"?buildProfes():buildResumen()}
+  ${S.modal?buildModal():""}${S.noteModal?buildNoteModal():""}`;
+}
+
+function buildCal(){
+  const dias=diasDelMes(S.year,S.month);
+  const ast=activeStudents();
+  const hdrs=ast.map((s,i)=>`<th class="c${i}" style="width:68px;line-height:1.3;padding:3px 2px" onmouseenter="hCol(${i},true)" onmouseleave="hCol(${i},false)">
+    <div style="font-size:10px;font-weight:500;color:#1a1a18">${s.nombre.length>13?s.nombre.slice(0,12)+"…":s.nombre}</div>
+    <div style="font-size:9px;color:#aaa">${s.materia}·${s.profesora.split(" ")[0]}</div>
+  </th>`).join("");
+  const rows=dias.map(d=>{
+    const ds=d.toISOString().slice(0,10);
+    const cells=ast.map((s,i)=>{
+      const est=S.sesiones[s.id+"_"+ds]||"";
+      const c=est?COLORS[est]:null;
+      const nota=getNote(s.id,ds);
+      const style=c?`background:${c.bg};border:0.5px solid ${c.border}`:`background:transparent;border:0.5px solid #ccc`;
+      return`<td class="cell c${i}" onmouseenter="hCol(${i},true)" onmouseleave="hCol(${i},false)">
+        <div class="cell-box" style="${style}" onclick="toggleSesion(${s.id},'${ds}')">${nota?'<span class="note-dot">📝</span>':""}</div>
+        ${est?`<div style="font-size:8px;color:#888;text-align:center;cursor:pointer;margin-top:1px" onclick="openNote(${s.id},'${ds}')">nota</div>`:""}
+      </td>`;
+    }).join("");
+    return`<tr><td class="sticky">${DIAS[d.getDay()]} ${d.getDate()} ${MESES[d.getMonth()].slice(0,3)}</td>${cells}</tr>`;
+  }).join("");
+  return`<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap">
+    <button class="btn-sm btn" onclick="prevMonth()">‹</button>
+    <span style="font-weight:500;font-size:14px">${MESES[S.month]} ${S.year}</span>
+    <button class="btn-sm btn" onclick="nextMonth()">›</button>
+    <button class="btn btn-sm btn-accent" onclick="showAddToMonth()">+ Agregar estudiante al mes</button>
+  </div>
+  <div id="addToMonthBox"></div>
+  <div class="cal-wrap"><table style="min-width:${ast.length*68+110}px">
+    <thead><tr><th class="sticky">Fecha</th>${hdrs}</tr></thead>
+    <tbody>${rows}</tbody>
+  </table></div>
+  ${ast.length===0?'<p class="tip">No hay estudiantes con sesiones en este mes.</p>':""}
+  <p class="tip">Clic en celda para cambiar estado · Pasa el cursor por columna para resaltarla</p>`;
+}
+
+function buildEst(){
+  const groups=groupedStudents(),nombres=Object.keys(groups);
+  const profOpts=S.profes.map(p=>`<option value="${p}"${S.newSt.profesora===p?" selected":""}>${p}</option>`).join("");
+  const cards=nombres.map(nombre=>{
+    const subs=groups[nombre],isOpen=S.openStudent===nombre;
+    let tc=0,tpc=0,tpp=0,ta=0;
+    subs.forEach(s=>{const f=calcFin(s);tc+=f.cobrado;tpc+=f.porCobrar;tpp+=f.porPagar;ta+=f.anticipado;});
+    const subCards=isOpen?subs.map(s=>{
+      const fin=calcFin(s),ss=stSesiones(s),isSubOpen=S.openSub===s.id,tarifa=getTarifa(s);
+      let subBody="";
+      if(isSubOpen&&S.editingId===s.id){
+        const po=S.profes.map(p=>`<option value="${p}"${S.editForm.profesora===p?" selected":""}>${p}</option>`).join("");
+        subBody=`<div class="sub-card-body" style="background:#f9f8f4">
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+            <input value="${S.editForm.nombre||""}" oninput="S.editForm.nombre=this.value" placeholder="Nombre" style="grid-column:1/-1"/>
+            <input value="${S.editForm.materia||""}" oninput="S.editForm.materia=this.value" placeholder="Materia"/>
+            <select onchange="S.editForm.profesora=this.value">${po}</select>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-accent" style="flex:1" onclick="saveEdit(${s.id})">Guardar</button>
+            <button class="btn btn-sm" onclick="S.editingId=null;render()">Cancelar</button>
+          </div></div>`;
+      } else if(isSubOpen){
+        const chips=ss.length===0?'<p style="font-size:11px;color:#aaa">Sin sesiones</p>':
+          ss.map(({fecha,estado,nota})=>{const c=COLORS[estado];return`<span class="chip" style="background:${c.bg};color:${c.text};border:0.5px solid ${c.border};cursor:pointer" onclick="openNote(${s.id},'${fecha}')">${fecha.slice(5).replace("-","/")} — ${c.label}${nota?" 📝":""}</span>`;}).join(" ");
+        subBody=`<div class="sub-card-body">
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px">
+            <button class="btn btn-purple btn-sm" onclick="openPaquete(${s.id},4)">Paquete ×4 — ${fmt(TARIFA_PAQ4[s.tipo]||TARIFA_PAQ4.individual)}/ses.</button>
+            <button class="btn btn-purple btn-sm" onclick="openPaquete(${s.id},6)">Paquete ×6 — ${fmt(TARIFA_PAQ6[s.tipo]||TARIFA_PAQ6.individual)}/ses.</button>
+            <button class="btn btn-sm" onclick="editTarifa(${s.id})">Tarifa: ${fmt(tarifa)}/ses. ✎</button>
+          </div>
+          <div class="metrics">
+            <div class="metric" style="background:#eaf3de"><div style="font-size:10px;color:#27500a">Cobrado</div><div style="font-size:13px;font-weight:500;color:#27500a">${fmt(fin.cobrado)}</div></div>
+            <div class="metric" style="background:#faeeda"><div style="font-size:10px;color:#633806">Por cobrar</div><div style="font-size:13px;font-weight:500;color:#633806">${fmt(fin.porCobrar)}</div></div>
+            <div class="metric" style="background:#fcebeb"><div style="font-size:10px;color:#791f1f">Pagar profe</div><div style="font-size:13px;font-weight:500;color:#791f1f">${fmt(fin.porPagar)}</div></div>
+          </div>
+          ${fin.anticipado>0?`<div style="background:#C9C4F7;border-radius:8px;padding:6px 10px;margin-bottom:8px;font-size:12px;color:#2B1FA8">Anticipo: <strong>${fmt(fin.anticipado)}</strong> — ${fin.nAnticipado} ses. por dictar</div>`:""}
+          <div style="display:flex;flex-wrap:wrap;gap:5px">${chips}</div>
+        </div>`;
+      }
+      return`<div class="sub-card"><div class="sub-card-header" onclick="toggleSub(${s.id})">
+        <div><span style="font-size:12px;font-weight:500">${s.materia}</span><span style="font-size:11px;color:#888;margin-left:6px">· ${s.profesora}</span>
+          <span class="badge" style="background:${s.tipo==="semi"?"#faeeda":"#e6f1fb"};color:${s.tipo==="semi"?"#633806":"#185fa5"}">${s.tipo}</span>
+          ${s.tarifa!=null?`<span class="badge" style="background:#faeeda;color:#633806">${fmt(s.tarifa)}/ses.</span>`:""}
+        </div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <span style="color:#aaa;font-size:12px">${isSubOpen?"▲":"▼"}</span>
+          <button class="btn btn-sm" onclick="event.stopPropagation();startEditSub(${s.id})">Editar</button>
+          <button class="btn btn-sm btn-danger" onclick="event.stopPropagation();deleteStudent(${s.id})">✕</button>
+        </div></div>${subBody}</div>`;
+    }).join(""):"";
+    const nk=nombre.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    return`<div class="card"><div class="card-header" onclick="toggleStudent('${nk}')">
+      <div style="flex:1;cursor:pointer"><span style="font-weight:500;font-size:14px">${nombre}</span><span style="font-size:11px;color:#888;margin-left:8px">${subs.length} clase${subs.length!==1?"s":""}</span></div>
+      <div style="display:flex;gap:10px;align-items:center">
+        ${tpc>0?`<span style="font-size:11px;color:#633806">Por cobrar: ${fmt(tpc)}</span>`:""}
+        ${ta>0?`<span style="font-size:11px;color:#2B1FA8">Anticipo: ${fmt(ta)}</span>`:""}
+        <span style="color:#aaa;cursor:pointer">${isOpen?"▲":"▼"}</span>
+      </div></div>
+      ${isOpen?`<div class="card-body"><div class="metrics" style="margin-bottom:12px">
+        <div class="metric" style="background:#eaf3de"><div style="font-size:10px;color:#27500a">Total cobrado</div><div style="font-size:14px;font-weight:500;color:#27500a">${fmt(tc)}</div></div>
+        <div class="metric" style="background:#faeeda"><div style="font-size:10px;color:#633806">Por cobrar</div><div style="font-size:14px;font-weight:500;color:#633806">${fmt(tpc)}</div></div>
+        <div class="metric" style="background:#fcebeb"><div style="font-size:10px;color:#791f1f">Pagar profes</div><div style="font-size:14px;font-weight:500;color:#791f1f">${fmt(tpp)}</div></div>
+      </div>${subCards}</div>`:""}
+    </div>`;
+  }).join("");
+  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <span style="color:#888">${nombres.length} estudiantes · ${S.students.length} clases</span>
+    <button class="btn btn-sm" onclick="S.showAddSt=!S.showAddSt;render()">+ Agregar clase</button>
+  </div>
+  ${S.showAddSt?`<div class="form-box">
+    <div class="full"><input placeholder="Nombre del estudiante" value="${S.newSt.nombre}" oninput="S.newSt.nombre=this.value"/></div>
+    <select onchange="S.newSt.profesora=this.value"><option value="">Profesora</option>${profOpts}</select>
+    <input placeholder="Materia" value="${S.newSt.materia}" oninput="S.newSt.materia=this.value"/>
+    <select class="full" onchange="S.newSt.tipo=this.value"><option value="individual">Individual</option><option value="semi">Semi</option></select>
+    <input class="full" type="number" placeholder="Tarifa especial (vacío = estándar)" value="${S.newSt.tarifa}" oninput="S.newSt.tarifa=this.value"/>
+    <div class="form-actions">
+      <button class="btn btn-accent" style="flex:1" onclick="addStudent()">Guardar</button>
+      <button class="btn btn-sm" onclick="S.showAddSt=false;render()">Cancelar</button>
+    </div></div>`:""}${cards}`;
+}
+
+function buildProfes(){
+  const rows=S.profes.map((p,idx)=>{
+    const asg=[...new Set(S.students.filter(s=>s.profesora===p).map(s=>s.nombre))].join(", ")||"Sin estudiantes";
+    return`<div class="card" style="border-radius:8px"><div class="card-header" style="cursor:default">
+      <div><span style="font-weight:500">${p}</span><span style="font-size:11px;color:#888;margin-left:8px">${asg}</span></div>
+      <div class="row-actions">
+        <button class="btn btn-sm" onclick="S.editingProfeIdx=${idx};S.editProfeNombre='${p.replace(/'/g,"\\'")}';render()">Editar</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteProfe(${idx})">Eliminar</button>
+      </div></div>
+      ${S.editingProfeIdx===idx?`<div class="edit-box" style="display:flex;gap:8px">
+        <input value="${S.editProfeNombre}" oninput="S.editProfeNombre=this.value" placeholder="Nombre"/>
+        <button class="btn btn-sm btn-accent" style="white-space:nowrap" onclick="saveProfe(${idx})">Guardar</button>
+        <button class="btn btn-sm" onclick="S.editingProfeIdx=null;render()">✕</button>
+      </div>`:""}
+    </div>`;
+  }).join("");
+  return`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+    <span style="color:#888">${S.profes.length} profesoras</span>
+    <button class="btn btn-sm" onclick="S.showAddPr=!S.showAddPr;render()">+ Agregar</button>
+  </div>
+  ${S.showAddPr?`<div class="form-box"><div class="full"><input placeholder="Nombre de la profesora" value="${S.newPr}" oninput="S.newPr=this.value"/></div>
+    <div class="form-actions"><button class="btn btn-accent" style="flex:1" onclick="addProfe()">Guardar</button><button class="btn btn-sm" onclick="S.showAddPr=false;render()">Cancelar</button></div>
+  </div>`:""}${rows}`;
+}
+
+function buildResumen(){
+  let cobrado=0,anticipadoT=0,pendPapas=0,pendProfe=0;
+  S.students.forEach(s=>{const t=getTarifa(s);Object.entries(S.sesiones).filter(([k])=>k.startsWith(s.id+"_")).forEach(([,est])=>{if(["pagadaPapas","pagadaProfe"].includes(est))cobrado+=t;if(est==="anticipado")anticipadoT+=t;if(est==="dictada")pendPapas+=t;if(est==="pagadaPapas")pendProfe+=t*0.6;});});
+  const profeRows=S.profes.map(prof=>{
+    let pp=0,pd=0;
+    S.students.filter(s=>s.profesora===prof).forEach(s=>{const t=getTarifa(s);Object.entries(S.sesiones).filter(([k])=>k.startsWith(s.id+"_")).forEach(([,est])=>{if(est==="pagadaPapas")pp+=t*0.6;if(est==="dictada")pd+=t*0.6;});});
+    return`<div class="profe-row"><span style="font-weight:500">${prof}</span><div style="display:flex;gap:16px;font-size:12px"><span style="color:#633806">Por pagar: ${fmt(pp)}</span><span style="color:#aaa">Pendiente: ${fmt(pd)}</span></div></div>`;
+  }).join("");
+  return`<div class="summary-grid">
+    ${[["Total cobrado",cobrado,"#27500a"],["Anticipos recibidos",anticipadoT,"#2B1FA8"],["Por cobrar",pendPapas,"#633806"],["Por pagar profes",pendProfe,"#791f1f"]].map(([l,v,c])=>`<div class="summary-card"><div style="font-size:11px;color:#888;margin-bottom:3px">${l}</div><div style="font-size:20px;font-weight:500;color:${c}">${fmt(v)}</div></div>`).join("")}
+  </div>
+  <h3 style="font-size:13px;font-weight:500;color:#5f5e5a;margin-bottom:8px">Por profesora</h3>${profeRows}
+  <p class="tip">Pago a profesoras estimado al 60% por sesión.</p>`;
+}
+
+function buildModal(){
+  const m=S.modal,s=S.students.find(x=>x.id===m.studentId);if(!s)return"";
+  const y=m.calYear,mo=m.calMonth,firstDay=new Date(y,mo,1).getDay(),daysInMonth=new Date(y,mo+1,0).getDate(),offset=(firstDay+6)%7;
+  let dc="";for(let i=0;i<offset;i++)dc+=`<div class="mini-day disabled"></div>`;
+  for(let d=1;d<=daysInMonth;d++){const dow=new Date(y,mo,d).getDay(),ds=y+"-"+String(mo+1).padStart(2,"0")+"-"+String(d).padStart(2,"0"),isSel=m.selected.includes(ds),dis=dow===0||(!isSel&&m.selected.length>=m.paqSize);dc+=`<div class="mini-day${isSel?" sel":""}${dis?" disabled":""}" ${!dis?`onclick="togglePaqDay('${ds}')"`:""}>${d}</div>`;}
+  return`<div class="modal-bg" onclick="S.modal=null;render()"><div class="modal" onclick="event.stopPropagation()">
+    <div style="font-weight:500;font-size:15px;margin-bottom:2px">Paquete de ${m.paqSize} sesiones</div>
+    <div style="font-size:12px;color:#888;margin-bottom:10px">${s.nombre} · ${s.materia} · ${fmt(m.tarifaPaq)}/sesión</div>
+    <div style="font-size:13px;color:#5f5e5a;margin-bottom:10px">Seleccionadas: <strong style="color:#2B1FA8">${m.selected.length}/${m.paqSize}</strong>${m.selected.length<m.paqSize?" — faltan "+(m.paqSize-m.selected.length):""}</div>
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+      <button class="btn btn-sm" onclick="modalPrevMonth()">‹</button>
+      <span style="flex:1;text-align:center;font-size:13px;font-weight:500">${MESES[mo]} ${y}</span>
+      <button class="btn btn-sm" onclick="modalNextMonth()">›</button>
+    </div>
+    <div class="mini-cal">${["L","M","X","J","V","S","D"].map(d=>`<div class="mini-day-hdr">${d}</div>`).join("")}${dc}</div>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-purple" style="flex:1" ${m.selected.length===0?"disabled":""} onclick="confirmPaquete()">Marcar ${m.selected.length} fecha${m.selected.length!==1?"s":""} como anticipado</button>
+      <button class="btn btn-sm" onclick="S.modal=null;render()">✕</button>
+    </div></div></div>`;
+}
+
+function buildNoteModal(){
+  const {studentId,fecha}=S.noteModal,s=S.students.find(x=>x.id===studentId),nota=getNote(studentId,fecha),est=S.sesiones[studentId+"_"+fecha]||"",c=est?COLORS[est]:null;
+  return`<div class="modal-bg" onclick="S.noteModal=null;render()"><div class="modal" onclick="event.stopPropagation()">
+    <div style="font-weight:500;font-size:15px;margin-bottom:4px">Nota de sesión</div>
+    <div style="font-size:12px;color:#888;margin-bottom:4px">${s?.nombre} · ${s?.materia} · ${s?.profesora}</div>
+    <div style="margin-bottom:12px"><span class="chip" style="background:${c?c.bg:"#eee"};color:${c?c.text:"#888"};border:0.5px solid ${c?c.border:"#ccc"}">${fecha} ${c?c.label:""}</span></div>
+    <textarea id="noteInput" placeholder="Escribe una nota...">${nota}</textarea>
+    <div style="display:flex;gap:8px;margin-top:10px">
+      <button class="btn btn-accent" style="flex:1" onclick="saveNote(${studentId},'${fecha}')">Guardar</button>
+      ${nota?`<button class="btn btn-danger btn-sm" onclick="deleteNote(${studentId},'${fecha}')">Borrar</button>`:""}
+      <button class="btn btn-sm" onclick="S.noteModal=null;render()">Cancelar</button>
+    </div></div></div>`;
+}
+
+function setView(v){S.view=v;render();}
+function prevMonth(){if(S.month===0){S.month=11;S.year--;}else S.month--;render();}
+function nextMonth(){if(S.month===11){S.month=0;S.year++;}else S.month++;render();}
+function toggleSesion(id,ds){const key=id+"_"+ds,cur=S.sesiones[key]||"",next=CICLO[(CICLO.indexOf(cur)+1)%CICLO.length];if(!next)delete S.sesiones[key];else S.sesiones[key]=next;saveState();render();}
+function openNote(id,ds){S.noteModal={studentId:id,fecha:ds};render();}
+function saveNote(id,ds){const val=document.getElementById("noteInput")?.value||"",k=noteKey(id,ds);if(val.trim())S.notas[k]=val.trim();else delete S.notas[k];S.noteModal=null;saveState();render();}
+function deleteNote(id,ds){delete S.notas[noteKey(id,ds)];S.noteModal=null;saveState();render();}
+function toggleStudent(nombre){S.openStudent=S.openStudent===nombre?null:nombre;S.openSub=null;render();}
+function toggleSub(id){S.openSub=S.openSub===id?null:id;S.editingId=null;render();}
+function deleteStudent(id){if(!confirm("¿Eliminar esta clase?"))return;S.students=S.students.filter(s=>s.id!==id);saveState();render();}
+function startEditSub(id){const s=S.students.find(x=>x.id===id);S.editingId=id;S.editForm={nombre:s.nombre,materia:s.materia,profesora:s.profesora};S.openSub=id;render();}
+function saveEdit(id){S.students=S.students.map(s=>s.id===id?{...s,...S.editForm}:s);S.editingId=null;saveState();render();}
+function editTarifa(id){const s=S.students.find(x=>x.id===id),val=prompt("Tarifa por sesión\n(estándar: "+fmt(TARIFA_STD[s.tipo]||100000)+")\nDejar vacío para estándar:",s.tarifa||"");if(val===null)return;const n=val.trim().replace(/\D/g,"");S.students=S.students.map(x=>x.id===id?{...x,tarifa:n&&Number(n)>0?Number(n):null}:x);saveState();render();}
+function addStudent(){if(!S.newSt.nombre.trim()||!S.newSt.profesora)return alert("Nombre y profesora requeridos");S.students.push({...S.newSt,id:Date.now(),tarifa:S.newSt.tarifa?Number(S.newSt.tarifa):null});S.newSt={nombre:"",profesora:"",materia:"",tipo:"individual",tarifa:""};S.showAddSt=false;saveState();render();}
+function saveProfe(idx){const n=S.editProfeNombre.trim();if(!n)return;const old=S.profes[idx];S.profes[idx]=n;S.students=S.students.map(s=>s.profesora===old?{...s,profesora:n}:s);S.editingProfeIdx=null;saveState();render();}
+function addProfe(){const n=S.newPr.trim();if(!n||S.profes.includes(n))return;S.profes.push(n);S.newPr="";S.showAddPr=false;saveState();render();}
+function deleteProfe(idx){const p=S.profes[idx];if(!confirm("¿Eliminar a "+p+"?"))return;S.profes.splice(idx,1);S.students=S.students.map(s=>s.profesora===p?{...s,profesora:""}:s);saveState();render();}
+function openPaquete(id,size){const s=S.students.find(x=>x.id===id),tarifaPaq=size===4?(TARIFA_PAQ4[s.tipo]||TARIFA_PAQ4.individual):(TARIFA_PAQ6[s.tipo]||TARIFA_PAQ6.individual);S.modal={studentId:id,paqSize:size,tarifaPaq,calYear:S.year,calMonth:S.month,selected:[]};render();}
+function togglePaqDay(ds){const sel=S.modal.selected,i=sel.indexOf(ds);if(i>=0)sel.splice(i,1);else if(sel.length<S.modal.paqSize)sel.push(ds);render();}
+function modalPrevMonth(){const m=S.modal;if(m.calMonth===0){m.calMonth=11;m.calYear--;}else m.calMonth--;render();}
+function modalNextMonth(){const m=S.modal;if(m.calMonth===11){m.calMonth=0;m.calYear++;}else m.calMonth++;render();}
+function confirmPaquete(){if(!S.modal||S.modal.selected.length===0)return;S.modal.selected.forEach(ds=>{S.sesiones[S.modal.studentId+"_"+ds]="anticipado";});S.modal=null;saveState();render();}
+
+function showAddToMonth(){
+  const prefix=S.year+"-"+String(S.month+1).padStart(2,"0");
+  const activeIds=new Set(Object.keys(S.sesiones).filter(k=>k.includes(prefix)).map(k=>Number(k.split("_")[0])));
+  const inactivos=S.students.filter(s=>!activeIds.has(s.id));
+  if(inactivos.length===0){alert("Todos los estudiantes ya tienen sesiones este mes.");return;}
+  const box=document.getElementById("addToMonthBox");if(!box)return;
+  const opts=inactivos.map(s=>`<option value="${s.id}">${s.nombre} — ${s.materia} · ${s.profesora}</option>`).join("");
+  box.innerHTML=`<div style="background:#f5f4f0;border:0.5px solid #d3d1c7;border-radius:12px;padding:1rem;margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+    <select id="addToMonthSelect" style="flex:1;min-width:200px"><option value="">Seleccionar estudiante</option>${opts}</select>
+    <button class="btn btn-accent btn-sm" onclick="addStudentToMonth()">Agregar</button>
+    <button class="btn btn-sm" onclick="document.getElementById('addToMonthBox').innerHTML=''">Cancelar</button>
+  </div>`;
+}
+function addStudentToMonth(){
+  const sel=document.getElementById("addToMonthSelect");if(!sel||!sel.value)return alert("Selecciona un estudiante");
+  const id=Number(sel.value),dias=diasDelMes(S.year,S.month),primerDia=dias[0].toISOString().slice(0,10);
+  S.sesiones[id+"_"+primerDia]="dictada";saveState();
+  document.getElementById("addToMonthBox").innerHTML="";render();
+}
+
+function exportData(){
+  const data=JSON.stringify({profes:S.profes,students:S.students,sesiones:S.sesiones,notas:S.notas},null,2);
+  const blob=new Blob([data],{type:"application/json"}),url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="MindVentures_backup_"+new Date().toISOString().slice(0,10)+".json";a.click();URL.revokeObjectURL(url);
+}
+function importData(e){
+  const file=e.target.files[0];if(!file)return;
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    try{
+      const d=JSON.parse(ev.target.result);
+      if(d.profes)S.profes=d.profes;if(d.students)S.students=d.students;if(d.sesiones)S.sesiones=d.sesiones;if(d.notas)S.notas=d.notas;
+      saveState();render();alert("✅ Backup importado correctamente");
+    }catch(err){alert("❌ Error al leer el archivo.");}
+  };
+  reader.readAsText(file);e.target.value="";
+}
+
+// Iniciar — carga desde Supabase primero
+loadFromCloud().then(()=>render());
+</script>
+</body>
+</html>
